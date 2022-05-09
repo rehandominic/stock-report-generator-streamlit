@@ -28,6 +28,29 @@ if st.button('Create Report'):
     logo_url = ticker_info['logo_url']
     open = ticker_info['open']
     percentChange = (((price - open)/open)*100)
+
+    ebitdaMargin = round(ticker_info['ebitdaMargins']*100, 1)
+    grossMargin = round(ticker_info['grossMargins']*100, 1)
+    profitMargin = round(ticker_info['profitMargins']*100, 1)
+    revenueGrowth = round(ticker_info['revenueGrowth']*100, 1)
+    earningsGrowth = round(ticker_info['earningsGrowth']*100, 1)
+    recommendationKey = ticker_info['recommendationKey'].capitalize()
+
+    quickRatio = round(ticker_info['quickRatio'], 1)
+    currentRatio = round(ticker_info['currentRatio'], 1)
+    shortRatio = round(ticker_info['shortRatio'], 1)
+    beta = round(ticker_info['beta'], 1)
+    pegRatio = round(ticker_info['pegRatio'], 1)
+    payoutRatio = round(ticker_info['payoutRatio'], 1)
+
+    debttoequity = round(ticker_info['debtToEquity'], 1)
+    roe = round(ticker_info['returnOnEquity'], 1)
+    roa = round(ticker_info['returnOnAssets'], 1)
+    forwardpe = round(ticker_info['forwardPE'], 1)
+    trailingpe = round(ticker_info['trailingPE'], 1)
+    bookValue = round(ticker_info['bookValue'], 1)
+
+
     ticker_financials = tickerData.recommendations
 
     hcol1, hcol2, hcol3 = st.columns([5, 1, 2])
@@ -80,6 +103,35 @@ if st.button('Create Report'):
                 #### Employees :  {} People
                 """.format(employees))
 
+    st.write("""
+    ## Key Financial Indicators
+    """)
+
+    tcol1, tcol2, tcol3, tcol4, tcol5, tcol6 = st.columns(6)
+
+    tcol1.metric("EBITDA Margin", "{}%".format(ebitdaMargin))
+    tcol2.metric("Profit Margin", "{}%".format(profitMargin))
+    tcol3.metric("Gross Margin", "{}%".format(grossMargin))
+    tcol4.metric("Revenue Growth", "{}%".format(revenueGrowth))
+    tcol5.metric("Earnings Growth", "{}%".format(earningsGrowth))
+    tcol6.metric("Analyst Recommendation", "{}".format(recommendationKey))
+
+
+    tcol1.metric("Quick Ratio", "{}".format(quickRatio))
+    tcol2.metric("Current Ratio", "{}".format(currentRatio))
+    tcol3.metric("Short Ratio", "{}".format(shortRatio))
+    tcol4.metric("Beta", "{}".format(beta))
+    tcol5.metric("Price to Earnings Growth Ratio", "{}".format(pegRatio))
+    tcol6.metric("Payout Ratio", "{}".format(payoutRatio))
+
+
+    tcol1.metric("Debt to Equity Ratio", "{}".format(debttoequity))
+    tcol2.metric("ROE", "{}".format(roe))
+    tcol3.metric("ROA", "{}".format(roa))
+    tcol4.metric("Forward PE Ratio", "{}".format(forwardpe))
+    tcol5.metric("Trailing PE Ratio", "{}".format(trailingpe))
+    tcol6.metric("Book Value", "{}".format(bookValue))
+
 
     tickerDF = tickerData.history(period='1d', start='2010-5-31', end='2020-5-31')
     chart_col1, chart_col2 = st.columns(2)
@@ -92,7 +144,11 @@ if st.button('Create Report'):
         """)
     chart_col2.line_chart(tickerDF.Volume)
 
-    st.write(ticker_financials)
+    st.write("""
+        ## Major Analysts Recommendation
+        """)
+    recDF = ticker_financials.groupby(['To Grade'])['To Grade'].count()
+    st.write(recDF)
 
     # for key, values in ticker_info.items():
     #     st.write(key, values)

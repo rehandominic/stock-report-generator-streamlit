@@ -51,7 +51,11 @@ if st.button('Create Report'):
     bookValue = round(ticker_info['bookValue'], 1)
 
 
-    ticker_financials = tickerData.recommendations
+    ticker_recommendations = tickerData.recommendations
+    ticker_financials = tickerData.financials
+    ticker_dividends = tickerData.dividends
+    ticker_cashflow = tickerData.cashflow
+    ticker_bs = tickerData.balance_sheet
 
     hcol1, hcol2, hcol3 = st.columns([5, 1, 2])
 
@@ -132,28 +136,73 @@ if st.button('Create Report'):
     tcol5.metric("Trailing PE Ratio", "{}".format(trailingpe))
     tcol6.metric("Book Value", "{}".format(bookValue))
 
+    st.write("""
+    ##
+    """)
 
     tickerDF = tickerData.history(period='1d', start='2010-5-31', end='2020-5-31')
     chart_col1, chart_col2 = st.columns(2)
     chart_col1.write("""
-        ### Closing Price
+        ## Price Trend
         """)
     chart_col1.line_chart(tickerDF.Close)
     chart_col2.write("""
-        ### Volume
+        ## Volume Trend
         """)
     chart_col2.line_chart(tickerDF.Volume)
 
-    st.write("""
+    ch_col1, ch_col2 = st.columns(2)
+
+    ch_col1.write("""
         ## Major Analysts Recommendation
         """)
-    recDF = ticker_financials.groupby(['To Grade'])['To Grade'].count()
-    st.write(recDF)
+    rec = ticker_recommendations.groupby(['To Grade'])['To Grade'].count().reset_index(drop=True)
+    recDF = rec.to_frame()
+    column_names = ['Long Term Sell', 'Buy', 'Equal-Weight', 'Hold', 'Long-term Buy', 'Market Perform', 'Neutral',
+                    'Outperform', 'Overweight', 'Perform', 'Sector Perform', 'Sell', 'Strong Buy', 'Underperform',
+                    'Underweight']
+    recDF['Label'] = column_names
+    new_recDF = recDF.iloc[:, [1,0]]
+    new_recDF.reset_index(drop=True, inplace=True)
+    new_recDF.set_index(['Label'], inplace=True)
+    #st.write(new_recDF)
+    ch_col1.bar_chart(new_recDF)
 
-    # for key, values in ticker_info.items():
-    #     st.write(key, values)
-    #st.write(ticker_info['sector'])
+    ch_col2.write("""
+                ## Quarterly Dividends
+                ###### In USD per quarter
+                """)
+    ch_col2.bar_chart(ticker_dividends.to_frame())
 
 
-# tickerSymbol = 'GOOGL'
-#
+    st.write("""
+        ## Financial Performance
+        """)
+    st.write(ticker_financials)
+
+    t_col1, t_col2 = st.columns(2)
+
+    t_col1.write("""
+    ## Balance Sheet
+    ###### In Millions of USD
+    """)
+    t_col1.write(ticker_bs/1000000)
+
+    t_col2.write("""
+        ## Cash Flow Statement
+        ###### In Millions of USD
+        """)
+    t_col2.write(ticker_cashflow/1000000)
+
+
+    # st.write(type(ticker_financials))
+    # tf_transposed = ticker_financials.transpose()
+    # st.write(tf_transposed)
+    # st.write(type(tf_transposed['Gross Profit']))
+    # gpDF = tf_transposed['Gross Profit'].to_frame()
+    # st.write(type(gpDF))
+    # st.write(gpDF)
+    # gpDF.set_index([''], inplace=True)
+    # st.line_chart(gpDF['Gross Profit'])
+
+

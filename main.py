@@ -39,7 +39,10 @@ if st.button('Create Report'):
     quickRatio = round(ticker_info['quickRatio'], 1)
     currentRatio = round(ticker_info['currentRatio'], 1)
     shortRatio = round(ticker_info['shortRatio'], 1)
-    beta = round(ticker_info['beta'], 1)
+    try:
+        beta = round(ticker_info['beta'], 1)
+    except:
+        beta = ticker_info['beta']
     pegRatio = round(ticker_info['pegRatio'], 1)
     payoutRatio = round(ticker_info['payoutRatio'], 1)
 
@@ -158,9 +161,13 @@ if st.button('Create Report'):
         """)
     rec = ticker_recommendations.groupby(['To Grade'])['To Grade'].count().reset_index(drop=True)
     recDF = rec.to_frame()
-    column_names = ['Long Term Sell', 'Buy', 'Equal-Weight', 'Hold', 'Long-term Buy', 'Market Perform', 'Neutral',
-                    'Outperform', 'Overweight', 'Perform', 'Sector Perform', 'Sell', 'Strong Buy', 'Underperform',
-                    'Underweight']
+
+    rec2 = ticker_recommendations.groupby(['To Grade'])['To Grade'].count()
+    df_final = rec2.to_frame()
+    df_final.index.names = ['Grade_names']
+    reclist = list(df_final.index)
+
+    column_names = reclist
     recDF['Label'] = column_names
     new_recDF = recDF.iloc[:, [1,0]]
     new_recDF.reset_index(drop=True, inplace=True)
@@ -204,5 +211,7 @@ if st.button('Create Report'):
     # st.write(gpDF)
     # gpDF.set_index([''], inplace=True)
     # st.line_chart(gpDF['Gross Profit'])
-
+    #column_names = ['Long Term Sell', 'Buy', 'Equal-Weight', 'Hold', 'Long-term Buy', 'Market Perform', 'Neutral',
+     #               'Outperform', 'Overweight', 'Perform', 'Sector Perform', 'Sell', 'Strong Buy', 'Underperform',
+      #              'Underweight']
 
